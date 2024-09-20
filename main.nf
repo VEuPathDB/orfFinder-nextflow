@@ -23,7 +23,7 @@ else {
 
 workflow {
   gff = orfFinder(seqs, params.minPepLength)
-  index = indexResults(gff.collectFile())
+  index = indexResults(gff.collectFile(),params.outputFileName)
 }
 
 process orfFinder {
@@ -47,21 +47,20 @@ process orfFinder {
 process indexResults {
   container = 'biocontainers/tabix:v1.9-11-deb_cv1'
 
-  publishDir params.outputDir, mode: 'copy', pattern: 'sorted.gff',  saveAs: {filename->params.outputFileName}
-  publishDir params.outputDir, mode: 'copy', pattern: 'sorted_input.gff.gz.tbi',  saveAs: {filename->params.outputFileName+".gz.tbi"}
+  publishDir params.outputDir, mode: 'copy'
 
   input:
     path gff
+    val outputFileName
 
   output:
-    path 'sorted.gff'
-    path 'sorted_input.gff.gz.tbi'
+    path '*.gz'
+    path '*.gz.tbi'
 
   script:
   """
-  sort -k1,1 -k4,4n $gff > sorted_input.gff
-  cp sorted_input.gff sorted.gff
-  bgzip sorted_input.gff
-  tabix -p gff sorted_input.gff.gz
+  sort -k1,1 -k4,4n $gff > ${outputFileName}
+  bgzip ${outputFileName}
+  tabix -p gff ${outputFileName}.gz
   """
 }
