@@ -38,7 +38,7 @@ process orfFinder {
 
   script:
   """
-  orfFinder --dataset $subsetFasta \
+  orfFinder --inputFile $subsetFasta \
     --minPepLength $minPepLength \
     --outFile orf_subset.gff
   """

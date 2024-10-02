@@ -29,9 +29,9 @@ my $translTable = 1; # Genbank genetic code
 
 chomp(my $thisScript = `basename $0`);
 
-my ($startCodon, $dataset, $outFile, $organism);
+my ($startCodon, $inputFile, $outFile, $organism);
 &GetOptions(
-    "dataset=s"       => \$dataset,
+    "inputFile=s"       => \$inputFile,
     "outFile=s"       => \$outFile,
     "outFormat=s"     => \$outFormat,
     "startCodon=s"    => \$startCodon,
@@ -40,8 +40,8 @@ my ($startCodon, $dataset, $outFile, $organism);
     "organism=s"      => \$organism,
     "translTable=i"  => \$translTable);
 
-unless ($dataset) { usage() and exit(1) };
-unless (-e $dataset) { die "$dataset not found\n" };
+unless ($inputFile) { usage() and exit(1) };
+unless (-e $inputFile) { die "$inputFile not found\n" };
 
 open (OUT, ">>$outFile") if ($outFile);
 my $stopRegex  = qr/(?=$stopCodon)/i;
@@ -51,19 +51,8 @@ my $startRegex = qr/$startCodon/i if $startCodon;
 ##########################
 ##### "main()" ###########
 
-if ( -f $dataset ) {
-    warn "Processing $dataset\n" if DEBUG;
-    processOneFile($dataset, \*OUT);
-} elsif ( -d $dataset ) {
-    opendir(DIR, $dataset) or die("Cannot open directory $dataset\n");
-    while (my $file = readdir(DIR)) {
-        next if ($file =~ /^\.\.?$/);
-        warn "Processing $file\n" if DEBUG;
-        processOneFile("$dataset/$file", \*OUT);
-    }
-    closedir(DIR);
- }
- 
+processOneFile($inputFile, \*OUT);
+
 ##########################
 
 
