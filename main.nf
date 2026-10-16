@@ -2,26 +2,22 @@
 nextflow.enable.dsl=2
 
 //--------------------------------------------------------------------------
-// Param Checking
-//--------------------------------------------------------------------------
-
-if(!params.fastaSubsetSize) {
-  throw new Exception("Missing params.fastaSubsetSize")
-}
-
-if(params.inputFilePath) {
-  seqs = Channel.fromPath( params.inputFilePath )
-           .splitFasta( by:params.fastaSubsetSize, file:true  )
-}
-else {
-  throw new Exception("Missing params.inputFilePath")
-}
-
-//--------------------------------------------------------------------------
 // Main Workflow
 //--------------------------------------------------------------------------
 
 workflow {
+  if(!params.fastaSubsetSize) {
+    error "Missing params.fastaSubsetSize"
+  }
+
+  if(params.inputFilePath) {
+    seqs = channel.fromPath( params.inputFilePath )
+             .splitFasta( by:params.fastaSubsetSize, file:true  )
+  }
+  else {
+    error "Missing params.inputFilePath"
+  }
+
   gff = orfFinder(seqs, params.minPepLength)
   index = indexResults(gff.collectFile(),params.outputFileName)
 }
